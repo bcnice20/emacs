@@ -1,6 +1,33 @@
 (auto-compression-mode t)
 (recentf-mode 1)
-(show-paren-mode 1)
+
+;; auto-indentation
+(defun set-newline-and-indent ()
+  (local-set-key (kbd "RET") 'newline-and-indent))
+(add-hook 'lisp-mode-hook 'set-newline-and-indent)
+(add-hook 'ruby-mode-hook 'set-newline-and-indent)
+(add-hook 'clojure-mode-hook 'set-newline-and-indent)
+(add-hook 'io-mode-hook 'set-newline-and-indent)
+
+;;auto-indentation of pasted text
+(dolist (command '(yank yank-pop))
+       (eval `(defadvice ,command (after indent-region activate)
+                (and (not current-prefix-arg)
+                     (member major-mode '(emacs-lisp-mode lisp-mode
+                                                          clojure-mode    scheme-mode
+                                                          haskell-mode    ruby-mode
+                                                          rspec-mode      python-mode
+                                                          c-mode          c++-mode
+                                                          objc-mode       latex-mode
+                                                          plain-tex-mode))
+                     (let ((mark-even-if-inactive transient-mark-mode))
+                       (indent-region (region-beginning) (region-end) nil))))))
+
+;;misc
+(require 'linum)
+(line-number-mode 1)
+(column-number-mode 1)  ;; Line numbers on left most column
+(global-linum-mode 1)
 
 (when (> emacs-major-version 21)
   (ido-mode t)
@@ -28,8 +55,6 @@
 (toggle-scroll-bar -1)
 (auto-compression-mode t)
 (auto-insert-mode t)
-(line-number-mode 1)
-(column-number-mode 1)
 
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (setq display-time-24hr-format t)
